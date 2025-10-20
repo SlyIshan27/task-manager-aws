@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>Login</title>
+        <link rel="stylesheet" href="login.css">
+    </head>
+
+    <body>
+        <h1>TaskMate Login</h1>
+        <form action="index.html" onsubmit ="handleLogin(event)">
+            <div class="container">
+                <label for="username"><b>Username</b></label>
+                <input id="username" name="username" type="text" placeholder="Enter Username">
+
+                <label for="password"><b>Password</b></label>
+                <input id="password" name="password" type="password" placeholder="Enter Password">
+
+                <div class="actions">
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="submit" class="primary">Login</button>
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary">Forgot Password</button>
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary">Create Account</button>
+                </div>
+            </div>
+        </form>
+    </body>
+
+    <script>
+        function handleLogin(event){
+            event.preventDefault();
+            window.location.href = "index.html";
+        }
+    </script>
+</html>

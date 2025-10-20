@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Simple Task Manager</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app-header">
+        <h1>TaskMate</h1>
+        <p class="subtitle">Add tasks, mark done, and remove</p>
+      </header>
+
+      
+
+      <section class="task-form">
+        <label for="new-task" class="sr-only">New task</label>
+        <input id="new-task" type="text" placeholder="Add a new task and press Enter" />
+        <button id="add-btn" aria-label="Add task">Add</button>
+      </section>
+
+      <div class="to-do">
+        <h2>Your Tasks</h2>
+        <div id="arrow" class="arrow-down" onclick="toggleTasks(this.classList)">
+        </div>
+        <section class="task-list">
+            <ul id="tasks" aria-live="polite"></ul>
+        </section>
+      </div>
+
+      <div class="completed">
+        <h2>Completed Tasks</h2>
+        <div style="left: 200px;" id="arrow-completed" class="arrow-down" onclick="toggleTasksCompleted(this.classList)">
+        </div>
+        <section class="task-list-completed">
+            <ul id="completed-tasks" aria-live="polite"></ul>
+        </section>
+      </div>
+
+      <!-- <footer class="app-footer">
+        <small>Tasks are stored locally in your browser.</small>
+      </footer> -->
+    </main>
+
+    <script>
+      // Minimal task manager: add, toggle, delete, persist to localStorage
+      const input = document.getElementById('new-task');
+      const addBtn = document.getElementById('add-btn');
+      const list = document.getElementById('tasks');
+      const completedList = document.getElementById('completed-tasks');
+      const STORAGE_KEY = 'simple-tasks:v1';
+      const COMPLETED_STORAGE_KEY = 'completed-tasks:v1';
+
+      function loadTasks(){
+        try{
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        }catch(e){
+          return [];
+        }
+      }
+
+      function loadCompletedTasks(){
+        try{
+          return JSON.parse(localStorage.getItem(COMPLETED_STORAGE_KEY) || '[]');
+        }catch(e){
+          return [];
+        }
+      }
+
+      function saveCompletedTasks(tasks){
+        localStorage.setItem(COMPLETED_STORAGE_KEY, JSON.stringify(tasks));
+      }
+
+      function saveTasks(tasks){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      }
+
+      function toggleTasks(classList){
+        var arrow = document.getElementById("arrow");
+        classList.toggle("active");
+        var x = document.getElementById("tasks");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } else {
+          x.style.display = "none";
+        }
+      }
+      function toggleTasksCompleted(classList){
+        var arrow = document.getElementById("arrow-completed");
+        classList.toggle("active");
+        var x = document.getElementById("completed-tasks");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } else {
+          x.style.display = "none";
+        }
+      }
+
+      function render(){
+        const tasks = loadTasks();
+        list.innerHTML = '';
+        tasks.forEach(task => {
+          const li = document.createElement('li');
+          li.className = 'task-item';
+          if(task.done) li.classList.add('done');
+
+          const chk = document.createElement('input');
+          chk.type = 'checkbox';
+          chk.className = 'task-checkbox';
+          chk.checked = !!task.done;
+          chk.setAttribute('aria-label','Mark task as complete');
+          chk.addEventListener('change',()=>{
+            task.done = chk.checked;
+            
+            if(chk.checked) {
+              // Add to completed tasks
+              const completedTasks = loadCompletedTasks();
+              completedTasks.push({text: task.text, done: true, dueDate: task.dueDate});
+              saveCompletedTasks(completedTasks);
+              
+              // Remove from regular tasks
+              const idx = tasks.indexOf(task);
+              if(idx > -1) {
+                tasks.splice(idx, 1);
+                saveTasks(tasks);
+              }
+            }
+            
+            render();
+            completedTasks();
+          });
+
+          const dueDate = document.createElement('input');
+          dueDate.type = 'date';
+          dueDate.className = 'due-date';
+          dueDate.value = task.dueDate || '';
+          dueDate.addEventListener('change', () => {
+              task.dueDate = dueDate.value;
+              saveTasks(tasks);
+              render();
+          });
+
+          const span = document.createElement('span');
+          span.className = 'task-text';
+          span.textContent = task.text;
+
+          const del = document.createElement('button');
+          del.className = 'btn-delete';
+          del.setAttribute('aria-label','Delete task');
+          del.textContent = 'Delete';
+          del.addEventListener('click',()=>{
+            const idx = tasks.indexOf(task);
+            if(idx > -1){
+              tasks.splice(idx,1);
+              saveTasks(tasks);
+              render();
+            }
+          });
+
+          li.appendChild(chk);
+          li.appendChild(span);
+          li.appendChild(del);
+          li.appendChild(dueDate);
+          list.appendChild(li);
+        });
+      }
+
+      function completedTasks(){
+        const tasks = loadCompletedTasks();
+        completedList.innerHTML = '';
+        tasks.forEach(task => {
+          const li = document.createElement('li');
+          
+          li.className = 'task-item';
+          if(task.done) li.classList.add('done');
+          
+          const span = document.createElement('span');
+          span.className = 'task-text';
+          span.textContent = task.text;
+
+          const chk = document.createElement('input');
+          chk.type = 'checkbox';
+          chk.className = 'task-checkbox';
+          chk.checked = true;
+          chk.setAttribute('aria-label','Mark task as incomplete');
+          chk.addEventListener('change',()=>{
+            if(!chk.checked) {
+              // Move back to regular tasks
+              const regularTasks = loadTasks();
+              regularTasks.push({text: task.text, done: false, dueDate: task.dueDate});
+              saveTasks(regularTasks);
+              
+              // Remove from completed tasks
+              const idx = tasks.indexOf(task);
+              if(idx > -1) {
+                tasks.splice(idx, 1);
+                saveCompletedTasks(tasks);
+              }
+              
+              render();
+              completedTasks();
+            }
+          });
+          
+          const dueDate = document.createElement('input');
+          dueDate.type = 'date';
+          dueDate.className = 'due-date';
+          dueDate.value = task.dueDate || '';
+          dueDate.disabled = true; // Make it read-only in completed section
+
+          const del = document.createElement('button');
+          del.className = 'btn-delete';
+          del.setAttribute('aria-label','Delete task');
+          del.textContent = 'Delete';
+          del.addEventListener('click',()=>{
+            const idx = tasks.indexOf(task);
+            if(idx > -1){
+              tasks.splice(idx,1);
+              saveCompletedTasks(tasks);
+              completedTasks();
+            }
+          });
+          li.appendChild(chk);
+          li.appendChild(span);
+          li.appendChild(del);
+          li.appendChild(dueDate);
+          completedList.appendChild(li);
+        });
+      }
+
+      function addTask(text){
+        const trimmed = String(text||'').trim();
+        if(!trimmed) return;
+        const tasks = loadTasks();
+        tasks.push({text: trimmed, done: false});
+        saveTasks(tasks);
+        render();
+      }
+
+      addBtn.addEventListener('click', ()=>{ addTask(input.value); input.value=''; input.focus(); });
+
+      input.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){
+          addTask(input.value);
+          input.value='';
+        }
+      });
+
+      // initial render
+      render();
+      completedTasks();
+    </script>
+  </body>
+</html>

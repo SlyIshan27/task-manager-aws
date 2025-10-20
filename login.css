@@ -1,0 +1,133 @@
+
+    
+.container{
+    width: 500px;
+    margin: 24px auto; /* centers horizontally */
+    padding: 32px;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column; /* stack children vertically */
+    gap: 12px; /* consistent spacing between items */
+}
+
+/* Page-level centering */
+body{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;
+    margin: 0;
+}
+
+body h1{
+    color: #263238;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    25% {
+        background-position: 50% 50%;
+    }
+ 
+    50% {
+        background-position: 100% 50%;
+    }
+    
+    75% {
+        background-position: 50% 50%;
+    }
+ 
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+h1{
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+label{
+    /* font-weight: 600; */
+    display: block;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;
+    color: #263238;
+}
+
+input[type="text"],
+input[type="password"]{
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d9e6;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;
+}
+
+input:focus{
+    outline: none;
+    border-color: #6aa0ff;
+    box-shadow: 0 0 0 3px rgba(106,160,255,0.12);
+}
+
+.actions{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 6px;
+    width: 325px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;
+}
+
+.actions .primary{
+    background: #607D8B;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.actions .primary:hover{
+    background-color: #90A4Ae;
+}
+
+.actions .secondary{
+    background: #607D8B;
+    color: white;
+    border: 1px solid #d1d9e6;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.actions .secondary:hover{
+    background-color: #90A4Ae;
+}
+
+.actions button{
+    min-width: 140px;
+}
+
+/* Responsive: stack buttons vertically on narrow screens */
+@media (max-width: 420px){
+    .container{ padding: 18px; margin: 16px; }
+    .actions{ flex-direction: column; }
+    .actions button{ width: 100%; min-width: 0; }
+}
