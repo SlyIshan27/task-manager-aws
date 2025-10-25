@@ -45,6 +45,7 @@
     </main>
 
     <script>
+      const API_URL = 'https://4puj4u5vxe.execute-api.us-east-1.amazonaws.com/Prod';
       // Minimal task manager: add, toggle, delete, persist to localStorage
       const input = document.getElementById('new-task');
       const addBtn = document.getElementById('add-btn');
@@ -53,29 +54,95 @@
       const STORAGE_KEY = 'simple-tasks:v1';
       const COMPLETED_STORAGE_KEY = 'completed-tasks:v1';
 
-      function loadTasks(){
-        try{
-          return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        }catch(e){
+      function getAuthToken() {
+        return sessionStorage.getItem('accessToken');
+      }
+
+      function checkAuth() {
+        const token = getAuthToken();
+        if (!token) {
+          alert('Please log in first');
+          window.location.href = 'login.html';
+          return false;
+        }
+        return true;
+      }
+
+      async function apiCall(endpoint, method = 'GET', body = null) {
+        const token = getAuthToken();
+        const options = {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          }
+        };
+        
+        if (body) {
+          options.body = JSON.stringify(body);
+        }
+        
+        const response = await fetch(`${API_URL}${endpoint}`, options);
+        
+        if (response.status === 401 || response.status === 403) {
+          alert('Session expired. Please log in again.');
+          window.location.href = 'login.html';
+          return null;
+        }
+        
+        return await response.json();
+      }
+
+      async function loadTasks() {
+        try {
+          const data = await apiCall('/tasks');
+          if (!data) return [];
+          
+          // Filter active tasks (not done)
+          return data.tasks.filter(task => !task.done);
+        } catch (e) {
+          console.error('Error loading tasks:', e);
           return [];
         }
       }
 
-      function loadCompletedTasks(){
-        try{
-          return JSON.parse(localStorage.getItem(COMPLETED_STORAGE_KEY) || '[]');
-        }catch(e){
+      async function loadCompletedTasks() {
+        try {
+          const data = await apiCall('/tasks');
+          if (!data) return [];
+          
+          // Filter completed tasks
+          return data.tasks.filter(task => task.done);
+        } catch (e) {
+          console.error('Error loading completed tasks:', e);
           return [];
         }
       }
+  
 
-      function saveCompletedTasks(tasks){
-        localStorage.setItem(COMPLETED_STORAGE_KEY, JSON.stringify(tasks));
-      }
+      // function loadTasks(){
+      //   try{
+      //     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      //   }catch(e){
+      //     return [];
+      //   }
+      // }
 
-      function saveTasks(tasks){
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-      }
+      // function loadCompletedTasks(){
+      //   try{
+      //     return JSON.parse(localStorage.getItem(COMPLETED_STORAGE_KEY) || '[]');
+      //   }catch(e){
+      //     return [];
+      //   }
+      // }
+
+      // function saveCompletedTasks(tasks){
+      //   localStorage.setItem(COMPLETED_STORAGE_KEY, JSON.stringify(tasks));
+      // }
+
+      // function saveTasks(tasks){
+      //   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      // }
 
       function toggleTasks(classList){
         var arrow = document.getElementById("arrow");
@@ -98,49 +165,75 @@
         }
       }
 
-      function render(){
-        const tasks = loadTasks();
+      async function render(){
+        const tasks = await loadTasks();
         list.innerHTML = '';
         tasks.forEach(task => {
           const li = document.createElement('li');
           li.className = 'task-item';
-          if(task.done) li.classList.add('done');
+          // if(task.done) li.classList.add('done');
 
           const chk = document.createElement('input');
           chk.type = 'checkbox';
           chk.className = 'task-checkbox';
-          chk.checked = !!task.done;
+          chk.checked = false;
           chk.setAttribute('aria-label','Mark task as complete');
-          chk.addEventListener('change',()=>{
-            task.done = chk.checked;
+          chk.addEventListener('change', async ()=> {
+            // task.done = chk.checked;
             
             if(chk.checked) {
+              // Update task as completed via API
+              await apiCall(`/tasks/${task.taskID}`, 'PUT', {
+                text: task.text,
+                done: true,
+                dueDate: task.dueDate || null
+              });
+              render();
+              renderCompletedTasks();
+
               // Add to completed tasks
-              const completedTasks = loadCompletedTasks();
-              completedTasks.push({text: task.text, done: true, dueDate: task.dueDate});
-              saveCompletedTasks(completedTasks);
+              // const completedTasks = loadCompletedTasks();
+              // completedTasks.push({text: task.text, done: true, dueDate: task.dueDate});
+              // saveCompletedTasks(completedTasks);
               
-              // Remove from regular tasks
-              const idx = tasks.indexOf(task);
-              if(idx > -1) {
-                tasks.splice(idx, 1);
-                saveTasks(tasks);
-              }
+              // // Remove from regular tasks
+              // const idx = tasks.indexOf(task);
+              // if(idx > -1) {
+              //   tasks.splice(idx, 1);
+              //   saveTasks(tasks);
+              // }
             }
             
-            render();
-            completedTasks();
+            // render();
+            // completedTasks();
           });
 
-          const dueDate = document.createElement('input');
-          dueDate.type = 'date';
-          dueDate.className = 'due-date';
-          dueDate.value = task.dueDate || '';
-          dueDate.addEventListener('change', () => {
-              task.dueDate = dueDate.value;
-              saveTasks(tasks);
-              render();
-          });
+          // const dueDate = document.createElement('input');
+          // dueDate.type = 'date';
+          // dueDate.className = 'due-date';
+          // dueDate.value = task.dueDate || '';
+          // dueDate.addEventListener('change', () => {
+          //     task.dueDate = dueDate.value;
+          //     saveTasks(tasks);
+          //     render();
+          // });
+
+          // const span = document.createElement('span');
+          // span.className = 'task-text';
+          // span.textContent = task.text;
+
+          // const del = document.createElement('button');
+          // del.className = 'btn-delete';
+          // del.setAttribute('aria-label','Delete task');
+          // del.textContent = 'Delete';
+          // del.addEventListener('click',()=>{
+          //   const idx = tasks.indexOf(task);
+          //   if(idx > -1){
+          //     tasks.splice(idx,1);
+          //     saveTasks(tasks);
+          //     render();
+          //   }
+          //});
 
           const span = document.createElement('span');
           span.className = 'task-text';
@@ -148,15 +241,30 @@
 
           const del = document.createElement('button');
           del.className = 'btn-delete';
-          del.setAttribute('aria-label','Delete task');
+          del.setAttribute('aria-label', 'Delete task');
           del.textContent = 'Delete';
-          del.addEventListener('click',()=>{
-            const idx = tasks.indexOf(task);
-            if(idx > -1){
-              tasks.splice(idx,1);
-              saveTasks(tasks);
+          del.addEventListener('click', async () => {
+            console.log("Delete clicked for taskID:", task.taskID);
+            try{
+              const result = await apiCall(`/tasks/${task.taskID}`, 'DELETE');
+              console.log("Delete result:", result);
               render();
+            } catch (e) {
+              console.error('Error deleting task:', e);
             }
+          });
+
+          const dueDate = document.createElement('input');
+          dueDate.type = 'date';
+          dueDate.className = 'due-date';
+          dueDate.value = task.dueDate || '';
+          dueDate.addEventListener('change', async () => {
+            await apiCall(`/tasks/${task.taskID}`, 'PUT', {
+              text: task.text,
+              done: task.done,
+              dueDate: dueDate.value
+            });
+            render();
           });
 
           li.appendChild(chk);
@@ -167,61 +275,115 @@
         });
       }
 
-      function completedTasks(){
-        const tasks = loadCompletedTasks();
+      // function completedTasks(){
+      //   const tasks = loadCompletedTasks();
+      //   completedList.innerHTML = '';
+      //   tasks.forEach(task => {
+      //     const li = document.createElement('li');
+          
+      //     li.className = 'task-item';
+      //     if(task.done) li.classList.add('done');
+          
+      //     const span = document.createElement('span');
+      //     span.className = 'task-text';
+      //     span.textContent = task.text;
+
+      //     const chk = document.createElement('input');
+      //     chk.type = 'checkbox';
+      //     chk.className = 'task-checkbox';
+      //     chk.checked = true;
+      //     chk.setAttribute('aria-label','Mark task as incomplete');
+      //     chk.addEventListener('change',()=>{
+      //       if(!chk.checked) {
+      //         // Move back to regular tasks
+      //         const regularTasks = loadTasks();
+      //         regularTasks.push({text: task.text, done: false, dueDate: task.dueDate});
+      //         saveTasks(regularTasks);
+              
+      //         // Remove from completed tasks
+      //         const idx = tasks.indexOf(task);
+      //         if(idx > -1) {
+      //           tasks.splice(idx, 1);
+      //           saveCompletedTasks(tasks);
+      //         }
+              
+      //         render();
+      //         completedTasks();
+      //       }
+      //     });
+          
+      //     const dueDate = document.createElement('input');
+      //     dueDate.type = 'date';
+      //     dueDate.className = 'due-date';
+      //     dueDate.value = task.dueDate || '';
+      //     dueDate.disabled = true; // Make it read-only in completed section
+
+      //     const del = document.createElement('button');
+      //     del.className = 'btn-delete';
+      //     del.setAttribute('aria-label','Delete task');
+      //     del.textContent = 'Delete';
+      //     del.addEventListener('click',()=>{
+      //       const idx = tasks.indexOf(task);
+      //       if(idx > -1){
+      //         tasks.splice(idx,1);
+      //         saveCompletedTasks(tasks);
+      //         completedTasks();
+      //       }
+      //     });
+      //     li.appendChild(chk);
+      //     li.appendChild(span);
+      //     li.appendChild(del);
+      //     li.appendChild(dueDate);
+      //     completedList.appendChild(li);
+      //   });
+      // }
+
+      async function renderCompletedTasks() {
+        const tasks = await loadCompletedTasks();
         completedList.innerHTML = '';
+        
         tasks.forEach(task => {
           const li = document.createElement('li');
-          
-          li.className = 'task-item';
-          if(task.done) li.classList.add('done');
-          
-          const span = document.createElement('span');
-          span.className = 'task-text';
-          span.textContent = task.text;
+          li.className = 'task-item done';
 
           const chk = document.createElement('input');
           chk.type = 'checkbox';
           chk.className = 'task-checkbox';
           chk.checked = true;
-          chk.setAttribute('aria-label','Mark task as incomplete');
-          chk.addEventListener('change',()=>{
-            if(!chk.checked) {
-              // Move back to regular tasks
-              const regularTasks = loadTasks();
-              regularTasks.push({text: task.text, done: false, dueDate: task.dueDate});
-              saveTasks(regularTasks);
-              
-              // Remove from completed tasks
-              const idx = tasks.indexOf(task);
-              if(idx > -1) {
-                tasks.splice(idx, 1);
-                saveCompletedTasks(tasks);
-              }
+          chk.setAttribute('aria-label', 'Mark task as incomplete');
+          chk.addEventListener('change', async () => {
+            if (!chk.checked) {
+              // Move back to active tasks
+              await apiCall(`/tasks/${task.taskID}`, 'PUT', {
+                text: task.text,
+                done: false,
+                dueDate: task.dueDate || ''
+              });
               
               render();
-              completedTasks();
+              renderCompletedTasks();
             }
           });
-          
+
+          const span = document.createElement('span');
+          span.className = 'task-text';
+          span.textContent = task.text;
+
+          const del = document.createElement('button');
+          del.className = 'btn-delete';
+          del.setAttribute('aria-label', 'Delete task');
+          del.textContent = 'Delete';
+          del.addEventListener('click', async () => {
+            await apiCall(`/tasks/${task.taskID}`, 'DELETE');
+            renderCompletedTasks();
+          });
+
           const dueDate = document.createElement('input');
           dueDate.type = 'date';
           dueDate.className = 'due-date';
           dueDate.value = task.dueDate || '';
-          dueDate.disabled = true; // Make it read-only in completed section
+          dueDate.disabled = true;
 
-          const del = document.createElement('button');
-          del.className = 'btn-delete';
-          del.setAttribute('aria-label','Delete task');
-          del.textContent = 'Delete';
-          del.addEventListener('click',()=>{
-            const idx = tasks.indexOf(task);
-            if(idx > -1){
-              tasks.splice(idx,1);
-              saveCompletedTasks(tasks);
-              completedTasks();
-            }
-          });
           li.appendChild(chk);
           li.appendChild(span);
           li.appendChild(del);
@@ -230,12 +392,18 @@
         });
       }
 
-      function addTask(text){
+      async function addTask(text){
         const trimmed = String(text||'').trim();
         if(!trimmed) return;
-        const tasks = loadTasks();
-        tasks.push({text: trimmed, done: false});
-        saveTasks(tasks);
+        // const tasks = loadTasks();
+        // tasks.push({text: trimmed, done: false});
+        // saveTasks(tasks);
+        // render();
+        await apiCall('/tasks', 'POST', {
+          text: trimmed,
+          done: false,
+          dueDate: ''
+        });
         render();
       }
 
@@ -249,8 +417,10 @@
       });
 
       // initial render
-      render();
-      completedTasks();
+      if(checkAuth()){
+        render();
+        renderCompletedTasks();
+      }
     </script>
   </body>
 </html>

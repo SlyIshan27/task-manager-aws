@@ -6,7 +6,7 @@
 
     <body>
         <h1>TaskMate Login</h1>
-        <form action="index.html" onsubmit ="handleLogin(event)">
+        <form id="login-form">
             <div class="container">
                 <label for="username"><b>Username</b></label>
                 <input id="username" name="username" type="text" placeholder="Enter Username">
@@ -16,17 +16,79 @@
 
                 <div class="actions">
                     <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="submit" class="primary">Login</button>
-                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary">Forgot Password</button>
-                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary">Create Account</button>
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary" onclick="forgotPassword()">Forgot Password</button>
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary" onclick="createAccount()">Create Account</button>
                 </div>
             </div>
         </form>
     </body>
-
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
+    
     <script>
-        function handleLogin(event){
-            event.preventDefault();
-            window.location.href = "index.html";
+        window.onload = function () {
+            const poolData = {
+                UserPoolId: "us-east-1_SE2OKlq4a",
+                ClientId: "5jjasp2n08ejrsrte3o5ckd00t"
+            };
+            
+            const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+
+            // Handle Login
+            function handleLogin(event) {
+                event.preventDefault();
+
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                const authenticationData = {
+                    Username: username,
+                    Password: password,
+                };
+
+                const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+
+                const userData = {
+                    Username: username,
+                    Pool: userPool
+                };
+
+                const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+                cognitoUser.authenticateUser(authenticationDetails, {
+                    onSuccess: function(result) {
+                        console.log('Login successful!');
+                        console.log('Access token: ' + result.getAccessToken().getJwtToken());
+                        
+                        // Store the session token (optional)
+                        sessionStorage.setItem('accessToken', result.getIdToken().getJwtToken());
+                        sessionStorage.setItem('username', username);
+                        
+                        // Redirect to main app
+                        window.location.href = "index.html";
+                    },
+
+                    onFailure: function(err) {
+                        console.error('Login failed:', err);
+                        alert(err.message || JSON.stringify(err));
+                    },
+
+                    newPasswordRequired: function(userAttributes, requiredAttributes) {
+                        // User needs to set a new password
+                        alert('You need to change your password. Please contact support.');
+                    }
+                });
+            }
+
+            document.getElementById("login-form").addEventListener("submit", handleLogin);
+        };
+
+        function createAccount() {
+            window.location.href = "signup.html";
+        }
+
+        function forgotPassword() {
+            // You can implement password reset flow here
+            alert("Password reset functionality - coming soon!");
         }
     </script>
 </html>

@@ -1,0 +1,136 @@
+<html>
+    <head>
+        <title>Sign Up</title>
+        <link rel="stylesheet" href="login.css">
+    </head>
+
+    <body>
+        <h1>TaskMate Login</h1>
+        <form id="signup-form">
+            <div class="container">
+
+                <label for="email"><b>Email</b></label>
+                <input id="email" name="email" type="text" placeholder="Enter Email">
+
+                <label for="username"><b>Username</b></label>
+                <input id="username" name="username" type="text" placeholder="Enter Username">
+
+                <label for="password"><b>Password</b></label>
+                <input id="password" name="password" type="password" placeholder="Enter Password">
+
+                <div class="actions">
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="submit" class="primary">Sign Up</button>
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary" onclick="signIn()">Sign In</button>
+                </div>
+            </div>
+        </form>
+
+        <form id="verify-form" style="display: none;">
+            <div class="container">
+                <p>A verification code has been sent to your email. Please enter it below:</p>
+                
+                <label for="verification-code"><b>Verification Code</b></label>
+                <input id="verification-code" name="verification-code" type="text" placeholder="Enter 6-digit code">
+
+                <div class="actions">
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="submit" class="primary">Verify</button>
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary" onclick="resendCode()">Resend Code</button>
+                </div>
+            </div>
+        </form>
+    
+        <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
+
+        <script>
+        window.onload = function () {
+            const poolData = {
+                UserPoolId: "us-east-1_SE2OKlq4a",
+                ClientId: "5jjasp2n08ejrsrte3o5ckd00t"
+            };
+            
+            const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+            let currentUsername = '';
+
+            // Handle Sign Up
+            async function signUp(event){
+                event.preventDefault();
+
+                const email = document.getElementById("email").value;
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                const attributeList = [];
+                const dataEmail = {
+                    Name: 'email',
+                    Value: email
+                };
+                const attributeEmail = new AmazonCognitoIdentity.CognitoUserAttribute(dataEmail);
+                attributeList.push(attributeEmail);
+
+                userPool.signUp(username, password, attributeList, null, function(err, result) {
+                    if (err) {
+                        console.error("Error signing up:", err);
+                        alert(err.message || JSON.stringify(err));
+                        return;
+                    }
+                    const cognitoUser = result.user;
+                    currentUsername = username;
+                    console.log('User name is ' + cognitoUser.getUsername());
+                    document.getElementById("signup-form").style.display = "none";
+                    document.getElementById("verify-form").style.display = "block";
+                    // alert("Sign-up successful! Please check your email for a verification code.");
+                });
+            }
+
+            function verifyCode(){
+                event.preventDefault();
+
+                const code = document.getElementById("verification-code").value;
+
+                const userData = {
+                    Username: currentUsername,
+                    Pool: userPool
+                };
+
+                const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+                cognitoUser.confirmRegistration(code, true, function(err, result) {
+                    if (err) {
+                        console.error("Error verifying code:", err);
+                        alert(err.message || JSON.stringify(err));
+                        return;
+                    }
+                    console.log('Verification result: ' + result);
+                    alert("Account verified successfully! Redirecting to login...");
+                    window.location.href = "login.html";
+                });
+            }
+
+            window.resendCode = function() {
+                const userData = {
+                    Username: currentUsername,
+                    Pool: userPool
+                };
+
+                const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+                cognitoUser.resendConfirmationCode(function(err, result) {
+                    if (err) {
+                        console.error("Error resending code:", err);
+                        alert(err.message || JSON.stringify(err));
+                        return;
+                    }
+                    alert("Verification code resent! Check your email.");
+                });
+            };
+
+            // Redirect to login
+            window.signIn = function () {
+                window.location.href = "login.html";
+            };
+
+            document.getElementById("signup-form").addEventListener("submit", signUp);
+            document.getElementById("verify-form").addEventListener("submit", verifyCode);
+        };
+        </script>
+    </body>
+</html>
