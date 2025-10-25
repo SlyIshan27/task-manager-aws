@@ -1,0 +1,5 @@
+Google Login/Signup with AWS Cognito and API Gateway Integration
+Add an edit task button to edit task text
+Add a menu/hamburger menu button on the main page
+Add logout functionality
+Add account options functionality
