@@ -96,22 +96,13 @@
             }, 6000);
         }
 
-        (function() {
-            const hash = window.location.hash.substring(1);
-            const params = new URLSearchParams(hash);
-            const idToken = params.get('id_token');
-
-            if (idToken) {
-                sessionStorage.setItem('accessToken', idToken);
-                window.location.href = 'login.html.html'; // Redirect to main app
-            }
-        })();
+        
 
 
         window.onload = function () {
             const COGNITO_DOMAIN = "us-east-1se2oklq4a.auth.us-east-1.amazoncognito.com";
             const CLIENT_ID = "5jjasp2n08ejrsrte3o5ckd00t";
-            const REDIRECT_URI = "https://d216srow1s0soq.cloudfront.net/";
+            const REDIRECT_URI = "https://d216srow1s0soq.cloudfront.net/login.html";
             
             // Google Sign-In button
             document.getElementById("google").onclick = function() {
