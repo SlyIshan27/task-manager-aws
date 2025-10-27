@@ -133,7 +133,14 @@
             });
 
             document.getElementById("google").onclick = function() {
-                google.accounts.id.prompt();
+                const domain = "https://us-east-1se2oklq4a.auth.us-east-1.amazoncognito.com";
+                const clientID = "5jjasp2n08ejrsrte3o5ckd00t";
+                const redirectURI = "https://d216srow1s0soq.cloudfront.net/";
+                const responseType = "token";
+                const identityProvider = "Google";
+                const loginUrl = `${domain}/login?response_type=${responseType}&client_id=${clientID}&redirect_uri=${redirectURI}&identity_provider=${identityProvider}`;
+                // google.accounts.id.prompt();
+                window.location.href = loginUrl;
             };
 
 
