@@ -96,7 +96,16 @@
             }, 6000);
         }
 
-        
+        (function() {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const idToken = params.get('id_token');
+
+            if (idToken) {
+                sessionStorage.setItem('accessToken', idToken);
+                window.location.href = 'login.html.html'; // Redirect to main app
+            }
+        })();
 
 
         window.onload = function () {
