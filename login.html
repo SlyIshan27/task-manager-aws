@@ -29,6 +29,19 @@
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
     
     <script>
+        function handleGoogleAuthentication(){
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const idToken = params.get('id_token');
+
+            sessionStorage.setItem('accessToken', idToken);
+            if (idToken) {
+                sessionStorage.setItem('accessToken', idToken);
+                window.location.href = 'index.html'; // Redirect to main app
+            }
+
+        }
+        handleGoogleAuthentication();
         function closeAlert() {
             const alertBox = document.getElementById("alert");
             alertBox.classList.remove("show");
