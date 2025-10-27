@@ -48,7 +48,6 @@
         </form>
     
         <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
         <script>
         
         function getSimpleErrorMessage(error) {
@@ -97,52 +96,26 @@
             }, 6000);
         }
 
-        function handleGoogleSignIn(response) {
-            const idToken = response.credential; // Google ID token
-            console.log("Test1");
-            AWS.config.region = 'us-east-1';
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                IdentityPoolId: 'us-east-1:60cea690-0f7a-4549-8b02-3343d628d510',
-                Logins: {
-                    'accounts.google.com': idToken
-                }
-            });
-            console.log("Test2");
-
-            // Fetch AWS credentials
-            AWS.config.credentials.get(function(err) {
-                if (err) {
-                    console.error("Error getting credentials:", err);
-                    errorMessage("Login failed. Try again.");
-                    return;
-                }
-
-                console.log("Cognito Identity ID:", AWS.config.credentials.identityId);
-                alert("Signed in with Google successfully!");
-                // redirect to app or load user-specific content
-            });
-            console.log("Test3");
-        }
+        
 
 
         window.onload = function () {
-            const GOOGLE_CLIENT_ID = "863233997385-dikfq9cpe04mttuae99ls76kad15it8t.apps.googleusercontent.com"
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleGoogleSignIn
-            });
-
+            const COGNITO_DOMAIN = "us-east-1se2oklq4a.auth.us-east-1.amazoncognito.com";
+            const CLIENT_ID = "5jjasp2n08ejrsrte3o5ckd00t";
+            const REDIRECT_URI = "https://d216srow1s0soq.cloudfront.net/";
+            
+            // Google Sign-In button
             document.getElementById("google").onclick = function() {
-                const domain = "https://us-east-1se2oklq4a.auth.us-east-1.amazoncognito.com";
-                const clientID = "5jjasp2n08ejrsrte3o5ckd00t";
-                const redirectURI = "https://d216srow1s0soq.cloudfront.net/";
-                const responseType = "token";
-                const identityProvider = "Google";
-                const loginUrl = `${domain}/login?response_type=${responseType}&client_id=${clientID}&redirect_uri=${redirectURI}&identity_provider=${identityProvider}`;
-                // google.accounts.id.prompt();
+                const loginUrl = `https://${COGNITO_DOMAIN}/oauth2/authorize?` +
+                    `identity_provider=Google&` +
+                    `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+                    `response_type=TOKEN&` +
+                    `client_id=${CLIENT_ID}&` +
+                    `scope=email openid profile`;
+                
+                console.log("Redirecting to:", loginUrl); // Debug
                 window.location.href = loginUrl;
             };
-
 
             const poolData = {
                 UserPoolId: "us-east-1_SE2OKlq4a",
