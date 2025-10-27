@@ -1,7 +1,9 @@
 Google Login/Signup with AWS Cognito and API Gateway Integration
+2FA
 Add an edit task button to edit task text (Done)
 Add a menu/hamburger menu button on the main page (Done)
 Add logout functionality (Done)
 Add forgot password functionality
 Add account options functionality
 Add better pop out message/error messages. No alerts I guess. (Done)
+Cloudfront distribution added (Done)

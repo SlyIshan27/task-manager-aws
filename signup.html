@@ -28,6 +28,7 @@
                 <div class="actions">
                     <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="submit" class="primary">Sign Up</button>
                     <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary" onclick="signIn()">Sign In</button>
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" id="google" class="secondary">Sign-in with Google</button>
                 </div>
             </div>
         </form>
@@ -47,7 +48,7 @@
         </form>
     
         <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
-
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
         <script>
         
         function getSimpleErrorMessage(error) {
@@ -95,7 +96,45 @@
                 alertBox.classList.remove("show");
             }, 6000);
         }
+
+        function handleGoogleSignIn(response) {
+            const idToken = response.credential; // Google ID token
+
+            AWS.config.region = 'us-east-1'; // your region
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: 'us-east-1_SE2OKlq4a',
+                Logins: {
+                    'accounts.google.com': idToken
+                }
+            });
+
+            // Fetch AWS credentials
+            AWS.config.credentials.get(function(err) {
+                if (err) {
+                    console.error("Error getting credentials:", err);
+                    errorMessage("Login failed. Try again.");
+                    return;
+                }
+
+                console.log("Cognito Identity ID:", AWS.config.credentials.identityId);
+                alert("Signed in with Google successfully!");
+                // redirect to app or load user-specific content
+            });
+        }
+
+
         window.onload = function () {
+            const GOOGLE_CLIENT_ID = "863233997385-dikfq9cpe04mttuae99ls76kad15it8t.apps.googleusercontent.com"
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleSignIn
+            });
+
+            document.getElementById("google").onclick = function() {
+                google.accounts.id.prompt();
+            };
+
+
             const poolData = {
                 UserPoolId: "us-east-1_SE2OKlq4a",
                 ClientId: "5jjasp2n08ejrsrte3o5ckd00t"
