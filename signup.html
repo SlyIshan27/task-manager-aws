@@ -2,10 +2,17 @@
     <head>
         <title>Sign Up</title>
         <link rel="stylesheet" href="login.css">
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>   
     </head>
 
     <body>
         <h1>TaskMate Login</h1>
+
+        <div class="alert" id="alert">
+            <p>Error</p>
+            <span class="close-alert" onclick="closeAlert()">&times;</span>
+        </div>
+
         <form id="signup-form">
             <div class="container">
 
@@ -42,6 +49,52 @@
         <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
 
         <script>
+        
+        function getSimpleErrorMessage(error) {
+            const message = error.message || error.toString();
+            if (message.includes("Member must have length greater than or equal to 1") || 
+                message.includes("username") && message.includes("null")) {
+                return "Please enter a username.";
+            }
+            else if (message.includes("password") && message.includes("Member must satisfy regular expression pattern")) {
+                return "Please enter a password.";
+            }
+            else if (message.includes("email") && message.includes("null")) {
+                return "Please enter an email address.";
+            }
+            else if (message.includes("Password did not conform with policy")) {
+                return "Password must be at least 8 characters with uppercase, lowercase, special characters, and numbers.";
+            }
+            else if (message.includes("User already exists") || message.includes("UsernameExistsException")) {
+                return "This username is already taken.";
+            }
+            else if (message.includes("Invalid email address format")) {
+                return "Please enter a valid email address.";
+            }
+            else if (message.includes("validation errors detected")) {
+                return "Please fill in all fields correctly.";
+            }
+            
+            // Default fallback
+            return "Error signing up. Please check your information and try again.";
+        }
+
+        function closeAlert() {
+            const alertBox = document.getElementById("alert");
+            alertBox.classList.remove("show");
+        }
+        function errorMessage(message) {
+            const alertBox = document.getElementById("alert");
+            alertBox.classList.remove("show");
+
+            void alertBox.offsetWidth;
+            alertBox.classList.add("show");
+            alertBox.querySelector("p").innerText = message;
+
+            setTimeout(() => {
+                alertBox.classList.remove("show");
+            }, 6000);
+        }
         window.onload = function () {
             const poolData = {
                 UserPoolId: "us-east-1_SE2OKlq4a",
@@ -50,6 +103,8 @@
             
             const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
             let currentUsername = '';
+
+            
 
             // Handle Sign Up
             async function signUp(event){
@@ -70,7 +125,8 @@
                 userPool.signUp(username, password, attributeList, null, function(err, result) {
                     if (err) {
                         console.error("Error signing up:", err);
-                        alert(err.message || JSON.stringify(err));
+                        // alert(err.message || JSON.stringify(err));
+                        errorMessage(getSimpleErrorMessage(err));
                         return;
                     }
                     const cognitoUser = result.user;
@@ -96,7 +152,8 @@
                 cognitoUser.confirmRegistration(code, true, function(err, result) {
                     if (err) {
                         console.error("Error verifying code:", err);
-                        alert(err.message || JSON.stringify(err));
+                        // alert(err.message || JSON.stringify(err));
+                        errorMessage("Not a valid verification code.");
                         return;
                     }
                     console.log('Verification result: ' + result);
@@ -119,7 +176,7 @@
                         alert(err.message || JSON.stringify(err));
                         return;
                     }
-                    alert("Verification code resent! Check your email.");
+                    errorMessage("Verification code resent! Check your email.");
                 });
             };
 

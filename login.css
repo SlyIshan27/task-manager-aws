@@ -125,6 +125,64 @@ input:focus{
     cursor: pointer;
 }
 
+.alert {
+  padding: 20px 40px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  border: 1px solid #d1d9e6;
+  min-width: 400px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 10px;
+  /* margin-top: 20px;
+  margin-right: 20px; */
+  /* transition: 1.3s all; */
+  border-radius: 8px;
+  /* transform: translateX(100%); */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.alert.show{
+    opacity: 1;
+    animation: showAlert 1.2s forwards;
+}
+
+@keyframes showAlert {
+  0%{
+    transform: translateX(100%);
+  }
+  40%{
+    transform: translateX(-10%);
+  }
+  80%{
+    transform: translateX(0%);
+  }
+  100%{
+    transform: translateX(-10px);
+  }
+}
+
+.close-alert{
+    position: relative;
+    right: 0;
+    /* margin-left: 15px; */
+    color: white;
+    font-weight: bold;
+    /* float: right; */
+    font-size: 30px;
+    line-height: 1;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+
+
 .actions .secondary:hover{
     background-color: #90A4Ae;
 }

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Simple Task Manager</title>
     <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body>
     <main class="app">
@@ -13,6 +14,20 @@
         <p class="subtitle">Add tasks, mark done, and remove</p>
       </header>
 
+      <nav role="navigation">
+        <div id="menuToggle">
+          <input type="checkbox" />
+          <span></span>
+          <span></span>
+          <span></span>
+          
+          <ul id="menu">
+            <a href="#" onclick="logout()"><li>Logout</li></a>
+            <a href="#"><li>View Account Details</li></a>
+            <!-- <a href="login.html" onclick="logout()"><li>Logout</li></a> -->
+          </ul>
+        </div>
+      </nav>
       
 
       <section class="task-form">
@@ -38,15 +53,10 @@
             <ul id="completed-tasks" aria-live="polite"></ul>
         </section>
       </div>
-
-      <!-- <footer class="app-footer">
-        <small>Tasks are stored locally in your browser.</small>
-      </footer> -->
     </main>
 
     <script>
       const API_URL = 'https://4puj4u5vxe.execute-api.us-east-1.amazonaws.com/Prod';
-      // Minimal task manager: add, toggle, delete, persist to localStorage
       const input = document.getElementById('new-task');
       const addBtn = document.getElementById('add-btn');
       const list = document.getElementById('tasks');
@@ -237,12 +247,48 @@
 
           const span = document.createElement('span');
           span.className = 'task-text';
+          span.id = `task-text-${task.taskID}`;
           span.textContent = task.text;
+
+          const edit = document.createElement('button');
+          edit.className = 'btn-edit';
+          edit.setAttribute('aria-label', 'Edit task');
+
+          const wrapperEdit = document.createElement('i');
+          wrapperEdit.className = 'fa fa-pencil';
+          edit.appendChild(wrapperEdit);
+          // edit.textContent = 'Edit';
+          edit.addEventListener('click', () => {
+            const taskTextElement = document.getElementById(`task-text-${task.taskID}`);
+            taskTextElement.contentEditable = true;
+            taskTextElement.focus();
+            
+            const saveEdit = async () => {
+              taskTextElement.contentEditable = false;
+              await apiCall(`/tasks/${task.taskID}`, 'PUT', {
+                text: taskTextElement.textContent,
+                done: task.done,
+                dueDate: task.dueDate || ''
+              });
+            };
+
+            taskTextElement.addEventListener('blur', saveEdit, {once: true});
+            taskTextElement.addEventListener('keypress', (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                saveEdit();
+              }
+            });
+          });
 
           const del = document.createElement('button');
           del.className = 'btn-delete';
           del.setAttribute('aria-label', 'Delete task');
-          del.textContent = 'Delete';
+          
+          const wrapper = document.createElement('i');
+          wrapper.className = 'fa fa-trash';
+          del.appendChild(wrapper);
+          // del.textContent = document.createElement('i').className = 'fa fa-trash';
           del.addEventListener('click', async () => {
             console.log("Delete clicked for taskID:", task.taskID);
             try{
@@ -269,6 +315,7 @@
 
           li.appendChild(chk);
           li.appendChild(span);
+          li.appendChild(edit);
           li.appendChild(del);
           li.appendChild(dueDate);
           list.appendChild(li);
@@ -372,7 +419,10 @@
           const del = document.createElement('button');
           del.className = 'btn-delete';
           del.setAttribute('aria-label', 'Delete task');
-          del.textContent = 'Delete';
+          //del.textContent = 'Delete';
+          const wrapper = document.createElement('i');
+          wrapper.className = 'fa fa-trash';
+          del.appendChild(wrapper);
           del.addEventListener('click', async () => {
             await apiCall(`/tasks/${task.taskID}`, 'DELETE');
             renderCompletedTasks();
@@ -420,6 +470,15 @@
       if(checkAuth()){
         render();
         renderCompletedTasks();
+      }
+
+      function logout() {
+        // sessionStorage.removeItem('accessToken');
+        // sessionStorage.removeItem('username');
+        // sessionStorage.removeItem('password');
+        sessionStorage.clear();
+
+        window.location.href = 'login.html';
       }
     </script>
   </body>

@@ -6,6 +6,10 @@
 
     <body>
         <h1>TaskMate Login</h1>
+        <div class="alert" id="alert">
+            <p>Error</p>
+            <span class="close-alert" onclick="closeAlert()">&times;</span>
+        </div>
         <form id="login-form">
             <div class="container">
                 <label for="username"><b>Username</b></label>
@@ -25,6 +29,22 @@
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
     
     <script>
+        function closeAlert() {
+            const alertBox = document.getElementById("alert");
+            alertBox.classList.remove("show");
+        }
+        function alertMessage(message) {
+            const alertBox = document.getElementById("alert");
+            alertBox.classList.remove("show");
+
+            void alertBox.offsetWidth;
+            alertBox.classList.add("show");
+            alertBox.querySelector("p").innerText = message;
+
+            setTimeout(() => {
+                alertBox.classList.remove("show");
+            }, 6000);
+        }
         window.onload = function () {
             const poolData = {
                 UserPoolId: "us-east-1_SE2OKlq4a",
@@ -69,12 +89,12 @@
 
                     onFailure: function(err) {
                         console.error('Login failed:', err);
-                        alert(err.message || JSON.stringify(err));
+                        alertMessage("Login failed: Check your username and password.");
                     },
 
                     newPasswordRequired: function(userAttributes, requiredAttributes) {
                         // User needs to set a new password
-                        alert('You need to change your password. Please contact support.');
+                        alertMessage('You need to change your password. Please contact support.');
                     }
                 });
             }
@@ -88,7 +108,7 @@
 
         function forgotPassword() {
             // You can implement password reset flow here
-            alert("Password reset functionality - coming soon!");
+            alertMessage("Password reset functionality - coming soon!");
         }
     </script>
 </html>
