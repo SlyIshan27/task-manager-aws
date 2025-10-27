@@ -16,19 +16,25 @@
 
       <nav role="navigation">
         <div id="menuToggle">
-          <input type="checkbox" />
+          <input id="checkboxMenu" type="checkbox" />
           <span></span>
           <span></span>
           <span></span>
           
           <ul id="menu">
             <a href="#" onclick="logout()"><li>Logout</li></a>
-            <a href="#"><li>View Account Details</li></a>
+            <a href="#" onclick="displayAccountDetails()"><li>View Account Details</li></a>
             <!-- <a href="login.html" onclick="logout()"><li>Logout</li></a> -->
           </ul>
         </div>
       </nav>
       
+      <div id="accountView" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p>test</p>
+        </div>
+      </div>
 
       <section class="task-form">
         <label for="new-task" class="sr-only">New task</label>
@@ -76,6 +82,28 @@
           return false;
         }
         return true;
+      }
+
+      function displayAccountDetails() {
+        const modal = document.getElementById("accountView");
+        const span = document.getElementsByClassName("close")[0];
+        const menu = document.getElementById("checkboxMenu");
+        menu.checked = false;
+        // Fetch and display account details here
+        // For now, just a placeholder
+        modal.querySelector("p").innerText = "Account details functionality - coming soon!";
+
+        modal.style.display = "block";
+
+        span.onclick = function() {
+          modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        }
       }
 
       async function apiCall(endpoint, method = 'GET', body = null) {
