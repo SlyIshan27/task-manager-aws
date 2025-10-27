@@ -29,10 +29,17 @@
         </div>
       </nav>
       
-      <div id="accountView" class="modal">
-        <div class="modal-content">
+      <div id="accountView" class="account-view">
+        <div class="account-content">
           <span class="close">&times;</span>
-          <p>test</p>
+          <h2>Account Details</h2>
+          <p id="email">Email:</p>
+          <p id="username">Username:</p>
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <p>Password: </p>
+            <input style="margin-top: 4px;" id="password" type="password" readonly value="Seceret" />
+            <input style="margin-top: 5px;" type="checkbox" onclick="showPassword()" /> Show Password
+          </div>
         </div>
       </div>
 
@@ -85,24 +92,37 @@
       }
 
       function displayAccountDetails() {
-        const modal = document.getElementById("accountView");
+        const accountModal = document.getElementById("accountView");
         const span = document.getElementsByClassName("close")[0];
         const menu = document.getElementById("checkboxMenu");
         menu.checked = false;
         // Fetch and display account details here
         // For now, just a placeholder
-        modal.querySelector("p").innerText = "Account details functionality - coming soon!";
+        // modal.querySelector("p").innerText = sessionStorage.username + "Account details functionality - coming soon!";
 
-        modal.style.display = "block";
+        accountModal.style.display = "block";
+        console.log(sessionStorage.getItem('email'));
+        document.getElementById("email").innerText = "Email: " + sessionStorage.getItem('email');
+        document.getElementById("username").innerText = "Username: " + sessionStorage.getItem('username');
+        document.getElementById("password").value = sessionStorage.getItem('password');
 
         span.onclick = function() {
-          modal.style.display = "none";
+          accountModal.style.display = "none";
         }
 
         window.onclick = function(event) {
           if (event.target == modal) {
-            modal.style.display = "none";
+            accountModal.style.display = "none";
           }
+        }
+      }
+
+      function showPassword(){
+        var passwordInput = document.getElementById("password");
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+        } else {
+          passwordInput.type = "password";
         }
       }
 

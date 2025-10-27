@@ -43,7 +43,7 @@
 
             setTimeout(() => {
                 alertBox.classList.remove("show");
-            }, 6000);
+            }, 7000);
         }
         window.onload = function () {
             const poolData = {
@@ -73,18 +73,30 @@
                 };
 
                 const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-
+                // const email = "";
                 cognitoUser.authenticateUser(authenticationDetails, {
                     onSuccess: function(result) {
                         console.log('Login successful!');
                         console.log('Access token: ' + result.getAccessToken().getJwtToken());
+
+                        cognitoUser.getUserAttributes((err, attributes) => {
+                            if(err){
+                                console.error(err);
+                                return;
+                            }
+
+                            const email = attributes.find(attr => attr.getName() === 'email').getValue();
+                            sessionStorage.setItem('accessToken', result.getIdToken().getJwtToken());
+                            sessionStorage.setItem('email', email);
+                            sessionStorage.setItem('username', username);
+                            sessionStorage.setItem('password', password);
+                            
+                            // console.log('Email: ' + email);
+                            window.location.href = "index.html";
+                        });
+                
                         
-                        // Store the session token (optional)
-                        sessionStorage.setItem('accessToken', result.getIdToken().getJwtToken());
-                        sessionStorage.setItem('username', username);
                         
-                        // Redirect to main app
-                        window.location.href = "index.html";
                     },
 
                     onFailure: function(err) {

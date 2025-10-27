@@ -378,7 +378,7 @@ input[type="date"]{
   transform: none;
 }
 
-.modal{
+.account-view{
   display: none;
   position: fixed;
   z-index: 1;
@@ -392,12 +392,15 @@ input[type="date"]{
   background-color: rgba(0,0,0,0.4);
 }
 
-.modal-content {
-  background-color: #fefefe;
+.account-content {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
+  border-radius: 8px;
+  color: white;
 }
 
 .close {
