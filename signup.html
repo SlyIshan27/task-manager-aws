@@ -99,14 +99,15 @@
 
         function handleGoogleSignIn(response) {
             const idToken = response.credential; // Google ID token
-
-            AWS.config.region = 'us-east-1'; // your region
+            console.log("Test1");
+            AWS.config.region = 'us-east-1';
             AWS.config.credentials = new AWS.CognitoIdentityCredentials({
                 IdentityPoolId: 'us-east-1_SE2OKlq4a',
                 Logins: {
                     'accounts.google.com': idToken
                 }
             });
+            console.log("Test2");
 
             // Fetch AWS credentials
             AWS.config.credentials.get(function(err) {
@@ -120,6 +121,7 @@
                 alert("Signed in with Google successfully!");
                 // redirect to app or load user-specific content
             });
+            console.log("Test3");
         }
 
 
