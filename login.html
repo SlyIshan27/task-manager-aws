@@ -29,6 +29,9 @@
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
     
     <script>
+        sessionStorage.removeItem('accessToken');
+        sessionStorage.removeItem('idToken');
+        sessionStorage.clear();
         function handleGoogleAuthentication(){
             const hash = window.location.hash.substring(1);
             const params = new URLSearchParams(hash);
