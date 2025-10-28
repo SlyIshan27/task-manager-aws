@@ -565,12 +565,25 @@
       }
 
       function logout() {
+        const isGoogleUser = sessionStorage.getItem('googleUser') === 'true';
+
         // sessionStorage.removeItem('accessToken');
         // sessionStorage.removeItem('username');
         // sessionStorage.removeItem('password');
         sessionStorage.clear();
 
-        window.location.href = 'login.html';
+        if(isGoogleUser){
+          const COGNITO_DOMAIN = "us-east-1se2oklq4a.auth.us-east-1.amazoncognito.com";
+          const CLIENT_ID = "5jjasp2n08ejrsrte3o5ckd00t";
+          const LOGOUT_URI = "https://d216srow1s0soq.cloudfront.net/login.html";
+          const logoutUrl = `https://${COGNITO_DOMAIN}/logout?` +
+              `client_id=${CLIENT_ID}&` +
+              `logout_uri=${encodeURIComponent(LOGOUT_URI)}`;
+
+          window.location.href = logoutUrl;
+        }else{
+          window.location.href = 'login.html';
+        }
       }
     </script>
   </body>
