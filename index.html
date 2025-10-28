@@ -121,12 +121,34 @@
         // Fetch and display account details here
         // For now, just a placeholder
         // modal.querySelector("p").innerText = sessionStorage.username + "Account details functionality - coming soon!";
-
         accountModal.style.display = "block";
-        console.log(sessionStorage.getItem('email'));
-        document.getElementById("email").innerText = "Email: " + sessionStorage.getItem('email');
-        document.getElementById("username").innerText = "Username: " + sessionStorage.getItem('username');
-        document.getElementById("password").value = sessionStorage.getItem('password');
+        const isGoogleUser = sessionStorage.getItem('googleUser') === 'true';
+        if(isGoogleUser){
+          try{
+            const idToken = sessionStorage.getItem('idToken');
+            const payload = JSON.parse(atob(idToken.split('.')[1]));
+            
+            document.getElementById("email").innerText = "Email: " + (payload.email || 'N/A');
+            document.getElementById("username").innerText = "Username: " + (payload.email || 'Google User');
+            
+            // Hide password field for Google users
+            document.getElementById("password").parentElement.style.display = "none";
+            
+            // Add a note that it's a Google account
+            const note = document.createElement('p');
+            note.innerText = "Signed in with Google";
+            note.style.fontStyle = "italic";
+            note.style.color = "#666";
+            document.querySelector('.account-content').appendChild(note);
+          }catch(e){
+            console.error('Error parsing Google token:', e);
+          }
+        }else{
+          console.log(sessionStorage.getItem('email'));
+          document.getElementById("email").innerText = "Email: " + sessionStorage.getItem('email');
+          document.getElementById("username").innerText = "Username: " + sessionStorage.getItem('username');
+          document.getElementById("password").value = sessionStorage.getItem('password');
+        }
 
         span.onclick = function() {
           accountModal.style.display = "none";

@@ -33,13 +33,25 @@
             const hash = window.location.hash.substring(1);
             const params = new URLSearchParams(hash);
             const idToken = params.get('id_token');
+            const accessToken = params.get('access_token');
 
-            sessionStorage.setItem('accessToken', idToken);
-              sessionStorage.setItem('googleUser', true)
-            if (idToken) {
+            if (idToken && accessToken) {
                 sessionStorage.setItem('accessToken', idToken);
-                window.location.href = 'index.html'; // Redirect to main app
+                sessionStorage.setItem('idToken', idToken);
+                sessionStorage.setItem('googleUser', true)
+                
+            
+                try {
+                    const payload = JSON.parse(atob(idToken.split('.')[1]));
+                    sessionStorage.setItem('email', payload.email);
+                    sessionStorage.setItem('username', payload.email); // Use email as username
+                } catch (e) {
+                    console.error('Error parsing token:', e);
+                }
             }
+
+            window.location.href = 'index.html';
+            return;
 
         }
         handleGoogleAuthentication();
@@ -104,6 +116,7 @@
                             sessionStorage.setItem('email', email);
                             sessionStorage.setItem('username', username);
                             sessionStorage.setItem('password', password);
+                            sessionStorage.setItem('googleUser', false);
                             
                             // console.log('Email: ' + email);
                             window.location.href = "index.html";
