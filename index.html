@@ -86,6 +86,10 @@
         }
         window.history.replaceState(null, null, "window.location.pathname");
       }
+      if(sessionStorage.getItem('googleUser') == "true"){
+        //handleGoogleAuthentication();
+        console.log("Google user detected");
+      }
       // handleGoogleAuthentication();
       const API_URL = 'https://4puj4u5vxe.execute-api.us-east-1.amazonaws.com/Prod';
       const input = document.getElementById('new-task');

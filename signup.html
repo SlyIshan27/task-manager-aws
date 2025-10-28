@@ -28,7 +28,7 @@
                 <div class="actions">
                     <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="submit" class="primary">Sign Up</button>
                     <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary" onclick="signIn()">Sign In</button>
-                    <!-- <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" id="google" class="secondary">Sign-in with Google</button> -->
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" id="google" class="secondary">Sign-in with Google</button>
                 </div>
             </div>
         </form>
@@ -100,22 +100,22 @@
 
 
         window.onload = function () {
-            // const COGNITO_DOMAIN = "us-east-1se2oklq4a.auth.us-east-1.amazoncognito.com";
-            // const CLIENT_ID = "5jjasp2n08ejrsrte3o5ckd00t";
-            // const REDIRECT_URI = "https://d216srow1s0soq.cloudfront.net/login.html";
+            const COGNITO_DOMAIN = "us-east-1se2oklq4a.auth.us-east-1.amazoncognito.com";
+            const CLIENT_ID = "5jjasp2n08ejrsrte3o5ckd00t";
+            const REDIRECT_URI = "https://d216srow1s0soq.cloudfront.net/login.html";
             
-            // // Google Sign-In button
-            // document.getElementById("google").onclick = function() {
-            //     const loginUrl = `https://${COGNITO_DOMAIN}/oauth2/authorize?` +
-            //         `identity_provider=Google&` +
-            //         `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
-            //         `response_type=TOKEN&` +
-            //         `client_id=${CLIENT_ID}&` +
-            //         `scope=email openid profile`;
+            // Google Sign-In button
+            document.getElementById("google").onclick = function() {
+                const loginUrl = `https://${COGNITO_DOMAIN}/oauth2/authorize?` +
+                    `identity_provider=Google&` +
+                    `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+                    `response_type=TOKEN&` +
+                    `client_id=${CLIENT_ID}&` +
+                    `scope=email openid profile`;
                 
-            //     console.log("Redirecting to:", loginUrl); // Debug
-            //     window.location.href = loginUrl;
-            // };
+                console.log("Redirecting to:", loginUrl); // Debug
+                window.location.href = loginUrl;
+            };
 
             const poolData = {
                 UserPoolId: "us-east-1_SE2OKlq4a",
