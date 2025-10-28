@@ -69,27 +69,27 @@
     </main>
 
     <script>
-      function handleGoogleAuthentication(){
-        const hash = window.location.hash.substring(1);
-        const params = new URLSearchParams(hash);
-        const idToken = params.get('id_token');
-        const accessToken = params.get('access_token');
+      // function handleGoogleAuthentication(){
+      //   const hash = window.location.hash.substring(1);
+      //   const params = new URLSearchParams(hash);
+      //   const idToken = params.get('id_token');
+      //   const accessToken = params.get('access_token');
 
-        sessionStorage.setItem('accessToken', accessToken);
-        sessionStorage.setItem('idToken', idToken);
-        try {
-            const payload = JSON.parse(atob(idToken.split('.')[1]));
-            sessionStorage.setItem('username', payload.email || payload['cognito:username']);
-            console.log('Logged in as:', payload.email);
-        } catch (e) {
-            console.error('Error parsing token:', e);
-        }
-        window.history.replaceState(null, null, "window.location.pathname");
-      }
-      if(sessionStorage.getItem('googleUser') == "true"){
-        handleGoogleAuthentication();
-        console.log("Google user detected");
-      }
+      //   sessionStorage.setItem('accessToken', accessToken);
+      //   sessionStorage.setItem('idToken', idToken);
+      //   try {
+      //       const payload = JSON.parse(atob(idToken.split('.')[1]));
+      //       sessionStorage.setItem('username', payload.email || payload['cognito:username']);
+      //       console.log('Logged in as:', payload.email);
+      //   } catch (e) {
+      //       console.error('Error parsing token:', e);
+      //   }
+      //   window.history.replaceState(null, null, "window.location.pathname");
+      // }
+      // if(sessionStorage.getItem('googleUser') == "true"){
+      //   // handleGoogleAuthentication();
+      //   console.log("Google user detected");
+      // }
       // handleGoogleAuthentication();
       const API_URL = 'https://4puj4u5vxe.execute-api.us-east-1.amazonaws.com/Prod';
       const input = document.getElementById('new-task');

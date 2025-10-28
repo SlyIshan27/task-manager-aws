@@ -29,35 +29,35 @@
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
     
     <script>
-        sessionStorage.removeItem('accessToken');
-        sessionStorage.removeItem('idToken');
-        sessionStorage.clear();
-        function handleGoogleAuthentication(){
-            const hash = window.location.hash.substring(1);
-            const params = new URLSearchParams(hash);
-            const idToken = params.get('id_token');
-            const accessToken = params.get('access_token');
+        // sessionStorage.removeItem('accessToken');
+        // sessionStorage.removeItem('idToken');
+        // sessionStorage.clear();
+        // function handleGoogleAuthentication(){
+        //     const hash = window.location.hash.substring(1);
+        //     const params = new URLSearchParams(hash);
+        //     const idToken = params.get('id_token');
+        //     const accessToken = params.get('access_token');
 
-            if (idToken && accessToken) {
-                sessionStorage.setItem('accessToken', idToken);
-                sessionStorage.setItem('idToken', idToken);
-                sessionStorage.setItem('googleUser', true)
+        //     if (idToken && accessToken) {
+        //         sessionStorage.setItem('accessToken', idToken);
+        //         sessionStorage.setItem('idToken', idToken);
+        //         sessionStorage.setItem('googleUser', true)
                 
             
-                try {
-                    const payload = JSON.parse(atob(idToken.split('.')[1]));
-                    sessionStorage.setItem('email', payload.email);
-                    sessionStorage.setItem('username', payload.email); // Use email as username
-                } catch (e) {
-                    console.error('Error parsing token:', e);
-                }
-            }
+        //         try {
+        //             const payload = JSON.parse(atob(idToken.split('.')[1]));
+        //             sessionStorage.setItem('email', payload.email);
+        //             sessionStorage.setItem('username', payload.email); // Use email as username
+        //         } catch (e) {
+        //             console.error('Error parsing token:', e);
+        //         }
+        //     }
 
-            window.location.href = 'index.html';
-            return;
+        //     window.location.href = 'index.html';
+        //     return;
 
-        }
-        handleGoogleAuthentication();
+        // }
+        // handleGoogleAuthentication();
         function closeAlert() {
             const alertBox = document.getElementById("alert");
             alertBox.classList.remove("show");
