@@ -12,5 +12,8 @@ TaskMate is a simple full stack Task Manager built on HTML, CSS, Javascript and 
 - Cloudfront for global content delivery and distribution. Also a secure https url.
 - AWS CodePipleine for CI/CD with my GitHub and S3 Bucket
 
+## Cloudfront URL/URL for the Task Manager!
+https://d216srow1s0soq.cloudfront.net/
+
 ## Signing Up
 ![Sign Up Demo](assets/signup-demo.gif)
