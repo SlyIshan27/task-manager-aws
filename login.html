@@ -20,44 +20,56 @@
 
                 <div class="actions">
                     <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="submit" class="primary">Login</button>
-                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary" onclick="forgotPassword()">Forgot Password</button>
+                    <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary" onclick="showForgotPasswordForm()">Forgot Password</button>
                     <button style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, 'Helvetica Neue', Arial;" type="button" class="secondary" onclick="createAccount()">Create Account</button>
                 </div>
             </div>
         </form>
+        <!-- FORGOT PASSWORD FORM -->
+        <form id="forgot-password-form" style="display: none;">
+        <div class="container">
+            <label for="forgot-username"><small><b>Please enter your username, to verify your account and change password.</b></small></label>
+            <input id="forgot-username" name="forgot-username" type="text" placeholder="Enter your username">
+
+            <div style="margin-top:12px;" class="actions">
+                <button id="send-code-btn" type="button" class="secondary" onclick="sendResetCode()">Send Verification Code</button>
+                <button type="button" class="secondary" onclick="backToLogin()">Back to Login</button>
+            </div>
+        </div>
+        </form>
+
+        <!-- RESET PASSWORD FORM -->
+        <form id="reset-password-form" style="display: none;">
+        <div class="container">
+            <label for="verification-code"><b>Verification Code</b></label>
+            <input id="verification-code" name="verification-code" type="text" placeholder="Enter code">
+
+            <label for="new-password"><b>New Password</b></label>
+            <input id="new-password" name="new-password" type="password" placeholder="Enter new password">
+
+            <div style="margin-top:12px;" class="actions">
+                <button id="confirm-btn" type="button" class="primary" onclick="confirmNewPassword()">Confirm New Password</button>
+                <button type="button" class="secondary" onclick="backToLogin()">Cancel</button>
+            </div>
+        </div>
+        </form>
+
     </body>
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
     
     <script>
-        // sessionStorage.removeItem('accessToken');
-        // sessionStorage.removeItem('idToken');
-        // sessionStorage.clear();
-        // function handleGoogleAuthentication(){
-        //     const hash = window.location.hash.substring(1);
-        //     const params = new URLSearchParams(hash);
-        //     const idToken = params.get('id_token');
-        //     const accessToken = params.get('access_token');
-
-        //     if (idToken && accessToken) {
-        //         sessionStorage.setItem('accessToken', idToken);
-        //         sessionStorage.setItem('idToken', idToken);
-        //         sessionStorage.setItem('googleUser', true)
-                
-            
-        //         try {
-        //             const payload = JSON.parse(atob(idToken.split('.')[1]));
-        //             sessionStorage.setItem('email', payload.email);
-        //             sessionStorage.setItem('username', payload.email); // Use email as username
-        //         } catch (e) {
-        //             console.error('Error parsing token:', e);
-        //         }
-        //     }
-
-        //     window.location.href = 'index.html';
-        //     return;
-
-        // }
-        // handleGoogleAuthentication();
+        if (window.location.hash) {
+            window.history.replaceState(null, null, window.location.pathname);
+        }
+        
+        const poolData = {
+            UserPoolId: "us-east-1_SE2OKlq4a",
+            ClientId: "5jjasp2n08ejrsrte3o5ckd00t"
+        };
+    
+        const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        let resetUsername = "";
+        // let userPool = "";
         function closeAlert() {
             const alertBox = document.getElementById("alert");
             alertBox.classList.remove("show");
@@ -75,12 +87,12 @@
             }, 7000);
         }
         window.onload = function () {
-            const poolData = {
-                UserPoolId: "us-east-1_SE2OKlq4a",
-                ClientId: "5jjasp2n08ejrsrte3o5ckd00t"
-            };
+            // const poolData = {
+            //     UserPoolId: "us-east-1_SE2OKlq4a",
+            //     ClientId: "5jjasp2n08ejrsrte3o5ckd00t"
+            // };
             
-            const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+            // userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
             // Handle Login
             function handleLogin(event) {
@@ -148,9 +160,190 @@
             window.location.href = "signup.html";
         }
 
-        function forgotPassword() {
-            // You can implement password reset flow here
-            alertMessage("Password reset functionality - coming soon!");
+        // FORGOT PASSWORD
+        function showForgotPasswordForm() {
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("forgot-password-form").style.display = "block";
         }
+
+        // Back to login
+        function backToLogin() {
+            document.getElementById("forgot-password-form").style.display = "none";
+            document.getElementById("reset-password-form").style.display = "none";
+            document.getElementById("login-form").style.display = "block";
+            document.getElementById("forgot-username").value = "";
+            document.getElementById("verification-code").value = "";
+            document.getElementById("new-password").value = "";
+            resetUsername = "";
+        }
+
+        // Send verification code to the user's email
+        let codeActuallySent = false;
+        async function sendResetCode() {
+            resetUsername = document.getElementById("forgot-username").value.trim();
+            
+            if (!resetUsername) {
+                alertMessage("Please enter your username.");
+                return;
+            }
+
+            const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
+                Username: resetUsername,
+                Pool: userPool
+            });
+
+            const sendBtn = document.getElementById("send-code-btn");
+            sendBtn.disabled = true;
+            sendBtn.textContent = "Verifying";
+            codeActuallySent = false;
+
+             try {
+                // Call your API Gateway endpoint to check if the user exists
+                const res = await fetch("https://4puj4u5vxe.execute-api.us-east-1.amazonaws.com/Prod/check-user", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ username: resetUsername })
+                });
+
+                const data = await res.json();
+
+                if (!data.exists) {
+                    alertMessage("Username does not exist. Please check and try again.");
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = "Send Verification Code";
+                    return;
+                }
+
+                cognitoUser.forgotPassword({
+                    onSuccess: function(data) {
+                        console.log('Reset code sent:', data);
+                        // alertMessage("Verification code sent! Check your email.");
+                        // codeActuallySent = true;
+                        // document.getElementById("forgot-password-form").style.display = "none";
+                        // document.getElementById("reset-password-form").style.display = "block";
+                        // sendBtn.disabled = false;
+                        // sendBtn.textContent = "Send Verification Code";
+                    },
+                    
+                    onFailure: function(err) {
+                        console.error("Error sending reset code:", err);
+                        if (err.code === 'UserNotFoundException') {
+                            codeActuallySent = false;
+                            alertMessage("Username not found. Please check and try again.");
+                        } else if (err.code === 'InvalidParameterException') {
+                            codeActuallySent = false;                        
+                            alertMessage("Cannot reset password for this user. It may be a Google user.");
+                        } else if (err.code === 'LimitExceededException') {
+                            codeActuallySent = false;
+                            alertMessage("Too many attempts. Please try again later.");
+                        } 
+                        // else {
+                        //     codeActuallySent = false;
+                        //     alertMessage(err.message || "Error sending verification code.");
+                        // }
+                        
+                        // sendBtn.disabled = false;
+                        // sendBtn.textContent = "Send Verification Code";
+                    },
+                    
+                    inputVerificationCode: function(data) {
+                        console.log('inputVerificationCode called:', data);
+                        // console.log('codeActuallySent flag:', codeActuallySent);
+                        // This is called when code delivery is successful
+                        // console.log('Code delivery details:', data);
+                        // if(codeActuallySent){
+                        //     alertMessage("Verification code sent! Check your email.");
+                        //     document.getElementById("forgot-password-form").style.display = "none";
+                        //     document.getElementById("reset-password-form").style.display = "block";
+                        // }else{
+                        //     alertMessage("Error: Unable to send verification code, user does not exist");
+                        // }
+                        if (data && (data.CodeDeliveryDetails || data.Destination)) {
+                            // Code was actually sent!
+                            codeActuallySent = true;
+                            alertMessage("Verification code sent! Check your email.");
+                            document.getElementById("forgot-password-form").style.display = "none";
+                            document.getElementById("reset-password-form").style.display = "block";
+                        } else if (!codeActuallySent) {
+                            // No delivery data and flag is false = error already handled by onFailure
+                            console.log('Error already handled by onFailure');
+                        }
+                        sendBtn.disabled = false;
+                        sendBtn.textContent = "Send Verification Code";
+                    }
+                });
+            } catch (err){
+                console.error("API error:", err);
+                alertMessage("Failed to verify username. Try again later.");
+                sendBtn.disabled = false;
+                sendBtn.textContent = "Send Verification Code";
+            }
+        }
+
+       
+
+        // Confirm the new password using the code
+        function confirmNewPassword() {
+            const code = document.getElementById("verification-code").value.trim();
+            const newPassword = document.getElementById("new-password").value;
+
+            if (!code) {
+                alertMessage("Please enter the verification code.");
+                return;
+            }
+            
+            if (!newPassword) {
+                alertMessage("Please enter a new password.");
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                alertMessage("Password must be at least 8 characters long.");
+                return;
+            }
+
+            const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
+                Username: resetUsername,
+                Pool: userPool
+            });
+
+            const confirmBtn = document.getElementById("confirm-btn");
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Confirming...";
+
+            cognitoUser.confirmPassword(code, newPassword, {
+                onSuccess: function() {
+                    alertMessage("Password reset successful! You can now log in.");
+                    setTimeout(() => {
+                        backToLogin();
+                    }, 2000);
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = "Confirm New Password";
+                },
+                
+                onFailure: function(err) {
+                    console.error("Error confirming password:", err);
+                    
+                    if (err.code === 'CodeMismatchException') {
+                        alertMessage("Invalid verification code. Please try again.");
+                    } else if (err.code === 'ExpiredCodeException') {
+                        alertMessage("Verification code expired. Please request a new one.");
+                    } else if (err.code === 'InvalidPasswordException') {
+                        alertMessage("Password must be at least 8 characters with uppercase, lowercase, numbers, and special characters.");
+                    } else {
+                        alertMessage(err.message || "Error resetting password.");
+                    }
+                    
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = "Confirm New Password";
+                }
+            });
+        }
+        // function forgotPassword() {
+        //     // You can implement password reset flow here
+        //     // alertMessage("Password reset functionality - coming soon!");
+        // }
     </script>
 </html>
