@@ -27,31 +27,31 @@
         </form>
         <!-- FORGOT PASSWORD FORM -->
         <form id="forgot-password-form" style="display: none;">
-        <div class="container">
-            <label for="forgot-username"><small><b>Please enter your username, to verify your account and change password.</b></small></label>
-            <input id="forgot-username" name="forgot-username" type="text" placeholder="Enter your username">
+            <div class="container">
+                <label for="forgot-username"><small><b>Please enter your username, to verify your account and change password.</b></small></label>
+                <input id="forgot-username" name="forgot-username" type="text" placeholder="Enter your username">
 
-            <div style="margin-top:12px;" class="actions">
-                <button id="send-code-btn" type="button" class="secondary" onclick="sendResetCode()">Send Verification Code</button>
-                <button type="button" class="secondary" onclick="backToLogin()">Back to Login</button>
+                <div style="margin-top:12px;" class="actions">
+                    <button id="send-code-btn" type="button" class="secondary" onclick="sendResetCode()">Send Verification Code</button>
+                    <button type="button" class="secondary" onclick="backToLogin()">Back to Login</button>
+                </div>
             </div>
-        </div>
         </form>
 
         <!-- RESET PASSWORD FORM -->
         <form id="reset-password-form" style="display: none;">
-        <div class="container">
-            <label for="verification-code"><b>Verification Code</b></label>
-            <input id="verification-code" name="verification-code" type="text" placeholder="Enter code">
+            <div class="container">
+                <label for="verification-code"><b>Verification Code</b></label>
+                <input id="verification-code" name="verification-code" type="text" placeholder="Enter code">
 
-            <label for="new-password"><b>New Password</b></label>
-            <input id="new-password" name="new-password" type="password" placeholder="Enter new password">
+                <label for="new-password"><b>New Password</b></label>
+                <input id="new-password" name="new-password" type="password" placeholder="Enter new password">
 
-            <div style="margin-top:12px;" class="actions">
-                <button id="confirm-btn" type="button" class="primary" onclick="confirmNewPassword()">Confirm New Password</button>
-                <button type="button" class="secondary" onclick="backToLogin()">Cancel</button>
+                <div style="margin-top:12px;" class="actions">
+                    <button id="confirm-btn" type="button" class="primary" onclick="confirmNewPassword()">Confirm New Password</button>
+                    <button type="button" class="secondary" onclick="backToLogin()">Cancel</button>
+                </div>
             </div>
-        </div>
         </form>
 
     </body>
@@ -134,6 +134,7 @@
                             sessionStorage.setItem('googleUser', false);
                             
                             // console.log('Email: ' + email);
+                            
                             window.location.href = "index.html";
                         });
                 
