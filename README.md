@@ -42,3 +42,6 @@ https://d216srow1s0soq.cloudfront.net/
 - If valid, you will get a verification code in your email
 - Enter the verification code and enter your new password. (Make sure it meets password requirements!)
 ![Forgot Password Demo](assets/ForgotPassword.gif)
+
+## Serverless AWS Task Manager Architecture
+![AWS Architecture](assets/AWSArchitecuture.png)
