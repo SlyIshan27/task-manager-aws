@@ -16,4 +16,8 @@ TaskMate is a simple full stack Task Manager built on HTML, CSS, Javascript and 
 https://d216srow1s0soq.cloudfront.net/
 
 ## Signing Up
+- When signing up:
+- Add your email 
+- Create a username
+- Create a password that is 8 characters with a lowercase, uppercase, number, and a special char.
 ![Sign Up Demo](assets/signup-demo.gif)
